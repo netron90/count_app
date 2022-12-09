@@ -3,7 +3,9 @@ import 'package:count_app/components/count_page_components/home_header.dart';
 import 'package:count_app/components/count_page_components/reset_section.dart';
 import 'package:count_app/constants/constants.dart';
 import 'package:count_app/screens/result_page.dart';
+import 'package:count_app/services/ad_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class CountPage extends StatefulWidget {
   CountPage({required this.appTitle});
@@ -20,6 +22,31 @@ class _CountPageState extends State<CountPage> {
       stateIconColor = kInactiveDoneIconColor,
       stateResetBg = kCardColor,
       resetTextColor = kBorderColor;
+
+  InterstitialAd? _interstitialAd;
+
+  void _loadInterstitialAd() {
+    InterstitialAd.load(
+      adUnitId: AdHelper.interstitialAdUnitId,
+      request: AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (ad) {
+          ad.fullScreenContentCallback = FullScreenContentCallback(
+            onAdDismissedFullScreenContent: (ad) {
+              resetData();
+            },
+          );
+
+          setState(() {
+            _interstitialAd = ad;
+          });
+        },
+        onAdFailedToLoad: (err) {
+          print('Failed to load an interstitial ad: ${err.message}');
+        },
+      ),
+    );
+  }
 
   void incrementNumber(PersonType personType) {
     setState(() {
@@ -55,6 +82,7 @@ class _CountPageState extends State<CountPage> {
   }
 
   Future<dynamic> result(BuildContext context) {
+    _loadInterstitialAd();
     return Navigator.push(
       context,
       MaterialPageRoute(
@@ -81,6 +109,18 @@ class _CountPageState extends State<CountPage> {
               if (stateCheckBg == kActiveDoneBgColor) {
                 var data = await result(context);
                 print(data);
+                if (_interstitialAd != null) {
+                  _interstitialAd?.show();
+                } else {
+                  setState(() {
+                    maleNumber = data['maleNumber'];
+                    femaleNumber = data['femaleNumber'];
+                    childNumber = data['childNumber'];
+                    stateCheckBg = data['stateCheckBg'];
+                    stateIconColor = data['stateIconColor'];
+                    stateResetBg = data['stateResetBg'];
+                  });
+                }
                 setState(() {
                   maleNumber = data['maleNumber'];
                   femaleNumber = data['femaleNumber'];

@@ -3,10 +3,11 @@ import 'package:count_app/screens/count_page.dart';
 import 'package:count_app/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-
+  _initGoogleMobileAds();
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
@@ -18,6 +19,10 @@ void main() {
   );
 }
 
+Future<InitializationStatus> _initGoogleMobileAds() {
+  // TODO: Initialize Google Mobile Ads SDK
+  return MobileAds.instance.initialize();
+}
 // Future initialization(BuildContext? context) async {
 //   await Future.delayed(Duration(seconds: 3));
 // }
@@ -37,6 +42,7 @@ class CountApp extends StatelessWidget {
 class HomePage extends StatelessWidget {
   HomePage({required this.appTitle});
   final String appTitle;
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
